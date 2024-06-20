@@ -1,0 +1,8 @@
+### 1.1.0 | 2023-09-14
+- Fixed an issue where API keys won't validate if using website restrictions.
+- Fixed an issue which causes the address field placeholder to not populate.
+- Fixed a fatal error that can occur when duplicate scripts are loaded.
+- Fixed an issue which prevents geolocation autosuggestion from initializing on multipage ajax forms.
+
+### 1.0 | 2023-01-05
+- It's all new!

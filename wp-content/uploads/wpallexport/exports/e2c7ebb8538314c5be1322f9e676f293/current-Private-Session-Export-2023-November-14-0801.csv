@@ -1,0 +1,16 @@
+﻿private_session_client_name,private_session_date,private_session_time,private_session_whatsapp_number,private_session_number_of_participants,private_session_address,private_session_status,private_session_payment_status
+Test2,20231025,"2023-10-25 11:00:00",'+96512345678,2,f,Requested,Unpaid
+Test3,2023-10-26,04:30,'+96512345678,3,r,,
+" test  2 ",20231109,"2023-11-08 00:11:00",5467876346,3,"34, Asgard, Norway",Requested,Unpaid
+,2023-11-23,"03:33 am",,6,,,
+" dum test 1   ",2023-11-22,"03:03 am",3543654,4,,,
+" publish test   ",2023-11-09,"03:03 am",465465465,5,,,
+" new new test   ",2023-11-23,"03:03 am",432543654,3,,,
+test,20231124,"2023-11-24 17:00:00",4643643643,1,,Requested,Unpaid
+test,20231116,"2023-11-16 00:00:00",4643643643,1,,Requested,Unpaid
+"xhfg fgx fx jfg",20231123,"2023-11-24 00:00:00",4643643643,1,,Requested,Unpaid
+test,20231119,"2023-11-18 00:00:00",4643643643,1,,Requested,Unpaid
+" test   ",2023-11-11,"03:03 am",533464363,4,,,
+" test   ",2023-11-11,,533464363,4,,,
+" tablesome   ",2023-11-07,"03:12 am",453643638,3,,,
+" test with az   ",20231118,"2023-11-14 00:03:00",579685746,4,,Scheduled,Paid
