@@ -7,7 +7,9 @@
 session_start();
 if(isset($_SESSION['content'])): ?>
     <?php get_header(); ?>
-    <?php echo $_SESSION['content']; ?>
+    <center>
+        <?php echo $_SESSION['content']; ?>
+    </center>
     <?php get_footer(); ?>
     <?php unset($_SESSION['content']); ?>
     <?php session_destroy(); ?>

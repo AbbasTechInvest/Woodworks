@@ -135,4 +135,3 @@
     $response_to_ajax = array("code" => 200, "redirect" => $apiUrl, "paymentData" => $paymentData);
     echo json_encode($response_to_ajax);
     exit;
-?>

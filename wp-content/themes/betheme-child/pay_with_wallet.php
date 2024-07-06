@@ -38,6 +38,7 @@
     // trim extra _ added in form
     $post_type = $_POST['post_type'];
 
+    // TODO: Remember this
     // post ID is beneficiary email if post type is gift
     $post_id = ("gift"==$post_type) ? $post_beneficiary : $_POST['post_id']; //$_POST['post_id'];
 
@@ -49,6 +50,13 @@
     $user_name = $user->user_login;
     $email = $user->user_email;
     $user_whatsapp = get_field('user_whatsapp', "user_".$user->ID);
+
+    // TODO: change email addresses in Production
+    $ADMIN_EMAIL = "info@itswework.com";
+    $RECEIVER_EMAIL = $user->user_email; 
+    $SENDER_EMAIL = "info@techinvestkw.com";
+
+    $site = get_site_url();
 
     // payment flow
     error_log("user #$user_id initiaitng payment for $post_type - $post_id using Wallet");
@@ -232,9 +240,9 @@
     }
 
     // 2.8 gift
-    // For post type gift, post-id is beneficiary-id
+    // TODO: Note that for post type gift, post-id is beneficiary-id
     if("gift" == $post_type){
-        $beneficiary_user = get_user_by('email', $post_id);
+        $beneficiary_user = get_user_by('email', $post_beneficiary); // $post_id is beneficiary email in this case
         $beneficiary_user_id = $beneficiary_user->ID;
 
         $balance = get_field('user_wallet_balance', "user_$beneficiary_user_id");
@@ -243,55 +251,284 @@
         error_log("Invoice: #{$invoice_id}, Beneficiary User: {$beneficiary_user->ID}, Beneficiary Name: {$beneficiary_user->first_name} {$beneficiary_user->last_name}, Recharge amount: {$post_amount}, Beneficiary Wallet Balance: {$balance}");
         
         // send email to beneficiary
+        $headers = array('Content-Type: text/html; charset=UTF-8', "From: {$SENDER_EMAIL}");
         $subject = "You have received a GIFT! | Woodworks";
-        $body = "Congratulations {$beneficiary_user->first_name}!<br>";
-        $body .= ucfirst($user->first_name);
-        $body .= " has gifted {$post_amount} KD to your wallet balance.";
-        $body .= "<br>You can view your wallet balance <a href='";
-        $body .= get_site_url();
-        $body .= "/my-account/wallet'>here</a><br>";
-        $body .= $post_gift_message;
-		$headers = array('Content-Type: text/html; charset=UTF-8', 'From: info@techinvestkw.com');
 
-        wp_mail($post_id, $subject, $body, $headers);
+        $body = <<<EOD
+                <!DOCTYPE html>
+                <html lang='en'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <title>Payment Confirmation</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .container {
+                            background-color: #f9f9f9;
+                            border: 1px solid #ddd;
+                            border-radius: 5px;
+                            padding: 20px;
+                        }
+                        .msg{
+                            background-color: #fcfcfc;
+                            border: 1px solid #000;
+                            max-width: 400px; 
+                            padding: 20px;
+                        }
+                        h1 {
+                            color: #1f1a4e;
+                        }
+                        a {
+                            color: #0066cc;
+                            text-decoration: none;
+                        }
+                        a:hover {
+                            text-decoration: underline;
+                        }
+                        p{
+                            text-align: start;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <center>
+                    <div class='container'>
+                        <div class='msg'>
+                            <img src='{$site}/wp-content/uploads/2024/03/cropped-single_logo-removebg-preview.png' width='100' alt='Logo' />
+                            <h1>Congratulations {$beneficiary_user->first_name}!</h1>
+                EOD;
+
+                $body .= "<p>" . esc_html(ucfirst($user->first_name ?? 'A user')) . " " . esc_html(ucfirst($user->last_name ?? '')) . " has gifted " . esc_html($post_amount) . " KD to your wallet balance.</p>";
+                $body .= "<p>You can view your wallet balance <a href='{$site}/my-account/wallet'>here</a></p>";
+                $body .= "<p>There is a special message for you from " . esc_html(ucfirst($user->first_name ?? 'the sender')) . ":</p>";
+                $body .= "<div class='container'>" . wp_kses_post($post_gift_message) . "</div>";
+
+                $body .= <<<EOD
+                            <p>Best Regards,<br>WeWork Team</p>
+                        </div>
+                    </div>
+                    </center>
+                </body>
+                </html>
+                EOD;
+
+        wp_mail($post_beneficiary, $subject, $body, $headers); // $post_id is the beneficiary email
     }
 
-    // 3. Send email to customer
-    $subject = "#{$invoice_id} Payment Confirmation | Woodworks";
-    // make exception to permalink for wallet recharge
-    $body = "Dear {$user->first_name},<br>The payment for ";
-    $body .= ucfirst($post_type);
-    $body .= " has been purchased using Wallet Balance.";
-    $body .= "<br>You can view your booking <a href='";
-    $body .= get_post_permalink($post_id);
-    $body .= "'>here</a><br>";
-    $body .= "<br>Amount deducted from Wallet Balance is {$post_amount}<br>";
-    $url = $_SERVER['SERVER_NAME'];
-    $headers = array('Content-Type: text/html; charset=UTF-8', 'From: info@techinvestkw.com');
 
-    wp_mail($email, $subject, $body, $headers);
+    // 3. Display frontend message
+    // Define the styles
+    $styles = "
+    <style scoped>
+        table {width: 100%; border-collapse: collapse;}
+        th {background-color: #1f1a4e; color: white; padding: 25px;}
+        td {padding: 15px; border: 1px solid #ccc;}
+        .invoice_container {max-width: 700px; padding: 25px;}
+        .center {text-align: center;}
+    </style>
+    ";
 
-    // 4. Send Whatsapp notification for payment
-    // TODO: Integrate Whatsapp Plugin
-    // TODO: Attach pdf invoice
+    // Start building the HTML content
+    $content = $styles . '
+    <div class="invoice_container">
+        <div class="center">
+            <img src="' . $site . '/wp-content/uploads/2024/03/cropped-single_logo-removebg-preview.png" width="100" />
+            <h2>Your Payment was successful</h2>
+        </div>
+        <table class="center">
+            <thead><tr><th colspan="2">Payment Details</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Applicant Name</strong></td>
+                    <td>' . $user->first_name . ' ' . $user->last_name . '</td>
+                </tr>';
+
+        // Add permalink exception for wallet recharge
+        if ($post_beneficiary !== $post_id) {
+            // other post types
+            $content .= '
+                <tr>
+                    <td><strong>Program Details</strong></td>
+                    <td><a href="' . get_post_permalink($post_id) . '">' . get_the_title($post_id) . '</a></td>
+                </tr>';
+        } else { // post_id is beneficiary email for gift post type
+            $content .= '
+                <tr>
+                    <td><strong>Beneficiary Email</strong></td>
+                    <td>' . $post_beneficiary . '</td>
+                </tr>
+                <tr>
+                    <td><strong>Gift Message</strong></td>
+                    <td>' . $post_gift_message . '</td>
+                </tr>';
+        }
+
+
+    if (in_array($post_id, array("class", "multiclass"))) {
+        $content .= '
+            <tr>
+                <td><strong>Booked Seats</strong></td>
+                <td>' . $booked_seats . '</td>
+            </tr>';
+    }
+
+    $content .= '
+            <tr>
+                <td><strong>Amount</strong></td>
+                <td>' . number_format((float)$post_amount, 3, '.', '') . '</td>
+            </tr>
+            <tr>
+                <td><strong>Payment Type</strong></td>
+                <td>Wallet</td>
+            </tr>
+            <tr>
+                <td><strong>Invoice No.</strong></td>
+                <td>' . $invoice_id . '</td>
+            </tr>
+            <tr>
+                <td><strong>Transaction Date</strong></td>
+                <td>' . date("Y-m-d H:i:s") . '</td>
+            </tr>
+            <tr>
+                <td><strong>Order Note</strong></td>
+        <td>Wallet Payment Successful</td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <div class="center">
+            <span><a href="' . $site . '"/my-account">My Account</a> &nbsp;&nbsp;&nbsp; <a href="' . $site . '/terms-and-conditions/">Terms</a></span>
+        </div>
+    </div>';
+
+
+    // 4. create pdf report
+    require_once('tcpdf/tcpdf.php');
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetTitle($invoice_id);
+    $pdf->SetAuthor('Itswework');
+    $pdf->AddPage();
+    $pdf->writeHTML($content, true, false, true, false, '');
+    
+    $pdf_name = str_replace('/', '_', $invoice_id) . ".pdf";
+    $pdf_content = $pdf->Output($pdf_name, 'S');
+    $pdf_path = get_stylesheet_directory() . "/invoices/{$pdf_name}";
+
+    // Save the PDF content to a file
+    file_put_contents($pdf_path, $pdf_content);
+    $attachments = array($pdf_path);
+
 
     // 5. Notify admin for received payment
-    $subject = "#{$invoice_id} {$user->first_name} paid for {$post_type} #{$post_id}";
-    $url = $_SERVER['SERVER_NAME'];
-    $body = "Dear Admin,<br>{$user->first_name} {$user->last_name} has paid for <a href='";
-    $body .= get_site_url();
-    $body .= "'/wp-admin/post.php?post={$post_id}&action=edit'>";
-    $body .= ucfirst($post_type);
-    $body .= " #{$post_id}</a>";
-    $headers = array('Content-Type: text/html; charset=UTF-8', 'From: info@techinvestkw.com');
-    $ADMIN_EMAIL = "abbas.kagdi@tech.com.kw"; // TODO: change in Production
-    wp_mail($ADMIN_EMAIL, $subject, $body, $headers);
+    $headers = array('Content-Type: text/html; charset=UTF-8', "From: {$SENDER_EMAIL}");
+    $subject = "{$invoice_id} {$user->user_login} paid for {$post_type} # {$post_id}";
+    
+    if("gift" !== $post_type){
+        $body = "Dear Admin,<br>{$user->user_login} has paid for a {$post_type} <a href='{$site}";
+        $body .= "/wp-admin/post.php?post={$post_id}&action=edit'>";
+        $body .= " #{$post_id}</a>";
+    }
+    else{
+        $body = "Dear Admin,<br>{$user->user_login} has gifted {$post_amount} to {$post_beneficiary}"; // $post_id is beneficiary email
+    }
+    
+    wp_mail($ADMIN_EMAIL, $subject, $body, $headers, $attachments);
+
+
+    // 6. Send email to customer
+    $headers = array('Content-Type: text/html; charset=UTF-8', "From: {$SENDER_EMAIL}");
+    $subject = "{$invoice_id} Payment Confirmation | WeWork";
+
+    $body = "
+            <!DOCTYPE html>
+            <html lang='en'>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Payment Confirmation</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .container {
+                        background-color: #f9f9f9;
+                        border: 1px solid #ddd;
+                        border-radius: 5px;
+                        padding: 20px;
+                    }
+                    .msg{
+                        background-color: #fcfcfc;
+                        border: 1px solid #000;
+                        max-width: 400px; 
+                        padding: 20px;
+                    }
+                    h1 {
+                        color: #1f1a4e;
+                    }
+                    a {
+                        color: #0066cc;
+                        text-decoration: none;
+                    }
+                    a:hover {
+                        text-decoration: underline;
+                    }
+                    p{
+                        text-align: start;
+                    }
+                </style>
+            </head>
+            <body>
+            <center>
+            <div class='container'>
+                <div class='msg'>
+                    <img src='" . esc_url($site . "/wp-content/uploads/2024/03/cropped-single_logo-removebg-preview.png") . "' width='100' />
+                    <h1>Payment Confirmation</h1>
+                    <p>Dear " . esc_html($user->first_name) . ",</p>
+                    <p>The payment for " . esc_html(ucfirst($post_type)) . " has been purchased using Wallet Balance.</p>";
+
+                // gift post id is always 0
+                if("gift" !== $post_type){
+                    $body .= "<p>You can view your booking <a href='" . esc_url(get_post_permalink($post_id)) . "'>here</a></p>";
+                } else { // gift
+                    $body .= "<p>Your gift amount has been sent to " . esc_html($post_beneficiary) . ".</p>";
+                }
+                
+                $body .= "<p>You can view your wallet balance <a href='" . esc_url($site . "/my-account/wallet") . "'>here</a>.</p>";
+                $body .= "<p>Amount deducted from Wallet Balance: <span class='amount'>" . esc_html($post_amount) . "</span></p>";
+
+                $body .= "
+                        <p>Thank you!</p>
+                        <p>Best Regards,<br>WeWork Team</p>
+                    </div>
+                </div>
+                </center>
+            </body>
+            </html>
+            ";
+
+    wp_mail($RECEIVER_EMAIL, $subject, $body, $headers, $attachments);
+
+    // Clean up: Delete the temporary PDF file
+    unlink($pdf_path);
 
     // update wallet balance
-	$balance = get_field('user_wallet_balance', "user_{$user->ID}");
-    $balance -= $post_amount;
-    update_field('user_wallet_balance', $balance, "user_{$user->ID}");
-    error_log("Invoice: #{$invoice_id}, User: {$user->ID}, Name: {$user->first_name}  {$user->last_name}, Deducted from Wallet: {$post_amount}, Wallet Balance: {$balance}");
+    $balance = get_field('user_wallet_balance', "user_{$user->ID}");
+    $balance = $balance + $post_amount;
+    update_field('user_wallet_balance', $balance, "user_{$user_id}");
+    error_log("Invoice: #{$invoice_id}, ID: {$user->ID}, Username: {$user->user_login}, Deducted from Wallet: {$post_amount}, Wallet Balance: {$balance}");
     
     // cleanup
     unset($_SESSION['wallet_pay_token']);

@@ -16,7 +16,7 @@
                             $current_date = strtotime("now");
                             // close booking once program day is reached
                             if($current_date > $start_date){
-                                update_field('class_booking_enabled', 'Closed');
+                                //update_field('class_booking_enabled', 'Closed');
 
                                 // autoarchive after class completion
                                 if($current_date > $end_date){
@@ -25,7 +25,7 @@
                                         'ID' => get_the_ID(),
                                         'post_status' => "archived"
                                     );
-                                    $statusTest = wp_update_post($update_post);
+                                    //$statusTest = wp_update_post($update_post);
                                 }
                             }
                             
@@ -37,7 +37,7 @@
 
                             $current_number_of_participants = count($rows);
                             if($current_number_of_participants >= $location_capacity){
-                                update_field('class_booking_enabled', 'Closed');
+                                //update_field('class_booking_enabled', 'Closed');
                             }
                             
                             $is_open = get_field('class_booking_enabled'); 

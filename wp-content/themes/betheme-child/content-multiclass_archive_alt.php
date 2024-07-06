@@ -23,7 +23,7 @@ $current_user_id = get_current_user_id(); ?>
                 <p style="color:#fffbf3;">
                 <?php /* Instructor: 
                     <b>
-                        <?php $instructor = get_field('instructor_name', get_field('class_instructor'));
+                        <?php $instructor = get_field('instructor_name', get_field('multiclass_instructor'));
                         if ($instructor) {
                             echo $instructor;
                         } else {
@@ -63,7 +63,7 @@ $current_user_id = get_current_user_id(); ?>
                     $current_date = strtotime("now");
                     // close booking once program day is reached
                     if($current_date > $start_date){
-                        update_field('multiclass_booking_enabled', 'Closed');
+                        //update_field('multiclass_booking_enabled', 'Closed');
 
                         // autoarchive in one day past program completion
                         if($current_date > $last_date){
@@ -72,7 +72,7 @@ $current_user_id = get_current_user_id(); ?>
                                 'ID' => get_the_ID(),
                                 'post_status' => "archived"
                             );
-                            $statusTest = wp_update_post($update_post);
+                            //$statusTest = wp_update_post($update_post);
                         }
                     }
 
@@ -85,7 +85,7 @@ $current_user_id = get_current_user_id(); ?>
                     if(!$rows) { $rows = []; }
                     $current_number_of_participants = count($rows);
                     if($current_number_of_participants >= $location_capacity){
-                        update_field('multiclass_booking_enabled', 'Closed');
+                        //update_field('multiclass_booking_enabled', 'Closed');
                     }
 
                     $is_open = get_field('multiclass_booking_enabled'); 
@@ -105,18 +105,18 @@ $current_user_id = get_current_user_id(); ?>
                         endforeach;
                         
                         if(!$user_participated && "Open" == $is_open): ?>
-                            <button class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('multiclass_fee'); ?>" id="multiclass_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></button>
+                            <a class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('multiclass_fee'); ?>" id="multiclass_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></a>
                         <?php elseif(!$user_participated): echo "<a class='button button_size_2' href='#' style='background: #000;' disabled><span class='button_label'>Fully Booked</span></a>"; ?>
                         <?php endif; ?>
                 <?php else : // no one has yet booked the program ?>
                     <?php if("Open" == $is_open): ?>
-                        <button class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('multiclass_fee'); ?>" id="multiclass_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></button>
+                        <a class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('multiclass_fee'); ?>" id="multiclass_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></a>
                     <?php else: echo "<a class='button button_size_2' href='#' style='background: #000;' disabled><span class='button_label'>Fully Booked</span></a>"; ?>
                     <?php endif; ?>
                 <?php endif; ?>
 
                 <?php 
-                    $eventat_link = (get_field("class_eventat")) ? get_field("class_eventat") : false; 
+                    $eventat_link = (get_field("multiclass_eventat")) ? get_field("multiclass_eventat") : false; 
                     if($eventat_link){
                         echo "<a class='button button_size_2' href='{$eventat_link}' target='_blank'><img src='".get_site_url()."/wp-content/uploads/2024/05/event.png' width='50px' /></a>";
                     }

@@ -10,7 +10,7 @@ $end_date = strtotime(get_field('prework_date_end'));
 $current_date = strtotime("now");
 // close booking once program day is reached
 if($current_date > $start_date){
-    update_field('prework_booking_enabled', 'Closed');
+    //update_field('prework_booking_enabled', 'Closed');
 
     // autoarchive after prework completion
     if($current_date > $end_date){
@@ -19,7 +19,7 @@ if($current_date > $start_date){
             'ID' => get_the_ID(),
             'post_status' => "archived"
         );
-        $statusTest = wp_update_post($update_post);
+        //$statusTest = wp_update_post($update_post);
     }
 }
 
@@ -30,7 +30,7 @@ $location_capacity = (int) get_field('location_seating_capacity', get_field('pre
 if(!$rows) { $rows = []; }
 $current_number_of_participants = count($rows);
 if($current_number_of_participants >= $location_capacity){
-    update_field('prework_booking_enabled', 'Closed');
+    //update_field('prework_booking_enabled', 'Closed');
     error_log("closing class booking for prework #". get_the_ID() . ", because participants ({$current_number_of_participants}) >= capacity ({$location_capacity})");
 }
 
@@ -98,12 +98,12 @@ $user_participated = false;
                         endforeach;
                         
                         if (!$user_participated && "Open" == $is_open): ?>
-                            <button class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('prework_fee'); ?>" id="prework_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></button>
+                            <a class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('prework_fee'); ?>" id="prework_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></a>
                         <?php elseif (!$user_participated):
                             echo "<a class='button button_size_2' href='#' style='background: #000;' disabled><span class='button_label'>Fully Booked</span></a>"; ?>
                         <?php endif; ?>
                     <?php else: // no one has yet booked the program ?>
-                        <button class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('prework_fee'); ?>" id="prework_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></button>
+                        <a class="button button_size_2" onclick="book(this)" data-amount="<?php the_field('prework_fee'); ?>" id="prework_<?php echo get_the_ID(); ?>"><span class="button_label">Enroll Now</span></a>
                     <?php endif; ?>
 
                     <?php 

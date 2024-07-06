@@ -110,18 +110,18 @@
                     </div>
                 <?php endif; ?>
 
-            <?php else: ?>
-                <div class="container" style="max-width: 750px; padding: 25px; margin-bottom:70px">
-                    <h2>Please login to view your requests</h2>
-                    <table>
-                        <thead>
-                            <tr><th colspan="6" style="background:#f3d8bb">Your Private Session Requests</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="6">No records to show</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <?php else: ?>
+            <div class="container" style="max-width: 750px; padding: 25px; margin-bottom:70px">
+                <h2>Please <a href="<?php echo get_site_url(); ?>/my-account">login</a> to view your requests</h2>
+                <table>
+                    <thead>
+                        <tr><th colspan="6" style="background:#f3d8bb">Your Private Session Requests</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6">No records to show</td></tr>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
 
 		</main><!-- #main -->

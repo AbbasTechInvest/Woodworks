@@ -182,7 +182,7 @@
 
                     // add button to redirect to post
                     let html = "<center><span><a href='" + <?php get_site_url() ?> + "/my-account'>My Account</a> &nbsp;&nbsp;&nbsp; <a href='" + <?php get_site_url() ?> + "/terms-and-conditions/'>Terms</a></span></center>";
-                    $("#payment_cart").append(html);
+                    jQuery("#payment_cart").append(html);
                 }
                 else if(v.code == 404){
                    alert("Invalid details. Please refresh the page");

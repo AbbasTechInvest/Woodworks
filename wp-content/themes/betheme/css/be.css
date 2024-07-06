@@ -6488,7 +6488,7 @@ html.mfn-popup-browser-scroll-disabled{ overflow: hidden; max-height: 100vh; pad
 .mfn-popup-tmpl.mfn-popup-animate-fade-in-left.mfn-popup-active{ animation-name: mfnpopupfade-in-left; animation-duration: 0.5s; }
 .mfn-popup-tmpl.mfn-popup-animate-fade-in-right.mfn-popup-active{ animation-name: mfnpopupfade-in-right; animation-duration: 0.5s; }
 
-@keyframes mfnpopupfade-in { 0% { opacity: 0; }, 100%{ opacity: 1; } }
+@keyframes mfnpopupfade-in { 0% { opacity: 0; } 100%{ opacity: 1; } }
 @keyframes mfnpopupzoom-in { 0% {transform: scale(0.9);} 100% {transform: scale(1);} }
 @keyframes mfnpopupfade-in-up { 0% {transform: translateY(100px);} 100% {transform: translateY(0);} }
 @keyframes mfnpopupfade-in-down { 0% {transform: translateY(-100px);} 100% {transform: translateY(0);} }

@@ -16,8 +16,8 @@
                             $current_date = strtotime("now");
                             // close booking once program day is reached
                             if($current_date > $start_date){
-                                update_field('prework_booking_enabled', 'Closed');
-                                error_log("closing prework #".get_the_ID().", because today ({$current_date}) > start date ({$start_date})");
+                                //update_field('prework_booking_enabled', 'Closed');
+                                error_log("closing prework #".get_the_ID().", because today ". $current_date ." > start date ". $start_date );
 
                                 // autoarchive after class completion
                                 if($current_date > $end_date){
@@ -26,7 +26,7 @@
                                         'ID' => get_the_ID(),
                                         'post_status' => "archived"
                                     );
-                                    $statusTest = wp_update_post($update_post);
+                                    //$statusTest = wp_update_post($update_post);
                                 }
                             }
                             
@@ -38,7 +38,7 @@
 
                             $current_number_of_participants = count($rows);
                             if($current_number_of_participants >= $location_capacity){
-                                update_field('prework_booking_enabled', 'Closed');
+                                //update_field('prework_booking_enabled', 'Closed');
                                 error_log("closing prework #".get_the_ID().", because participants ({$current_number_of_participants}) >= capacity ({$location_capacity})");
                             }
                             
@@ -58,6 +58,7 @@
                         <tr><td>Booking</td><td><?php echo $is_open; ?></td></tr>
                         <tr><td>Date</td><td><?php echo date("D, d M Y", $start_date); ?></td></tr>
                         <tr><td>Time</td><td><?php echo date("h:i a", $start_date) . " - " . date("h:i a", $end_date); ?></td></tr>
+                        <?php /*<tr><td>Compare:</td><td><?php echo strtotime("now") . " - " . strtotime(get_field('prework_date')) . " - " . strtotime(get_field('prework_date_end')); ?></td></tr>*/ ?>
                         <tr><td>Location</td><td><?php echo get_field('location_name', get_field('prework_location')); ?></td></tr>
                         <?php /*<tr><td>Instructor</td><td><?php $instructor = get_field('instructor_name', get_field('prework_instructor')); if($instructor) { echo $instructor; } else { echo "Not Assigned"; } ?></td></tr> */ ?>
                         <tr><td>Amount</td><td><?php the_field('prework_fee'); ?> KD</td></tr>
